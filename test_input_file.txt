@@ -1,0 +1,24 @@
+= + - * / == != > < <= => ( ) { } ; # ,
+=+-*/==!=><<==>(){};#,
+[* this comment should be ignored completely *a *a *]
+[* this comment as well ****************************]                     
+[* aaaaand this one too ] ] ]]] *]
+
+=
++
+-
+*
+/
+==
+!=
+>
+<
+<=
+=>
+(
+)
+{
+}
+;
+#
+,
