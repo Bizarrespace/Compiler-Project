@@ -1,0 +1,20 @@
+[* keywords *]
+function int bool real if fi else return put get while endwhile true false
+
+[* identifiers *]
+q r s t u v w x y z
+Alpha Bravo Charlie Delta Echo Foxtrot Golf
+a1 b2 c3 d4 e5 f6 g7
+A123 B123 C123 D123 E123 F123 G123
+hotel__ india__ juliett____ kilo____
+one1111111111111111111111111111111111111111
+underscore_________________________________
+one_and_underscore_________________________
+
+
+[* these tests should NOT work (copy/paste to test them)
+
+a1.
+_a1
+
+*]

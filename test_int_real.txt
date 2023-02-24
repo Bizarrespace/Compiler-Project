@@ -1,0 +1,35 @@
+[* ints with new lines in between *]
+1
+123
+123141
+12341234
+
+[* ints with spaces in between *]
+1 123 123141 12341234
+
+[* reals with new lines in between *]
+1.1
+123.123
+123141.123141
+12341234.12341234
+
+[* reals with spaces in between *]
+1.1 123.123 123141.123141 12341234.12341234
+
+
+[* int FAIL tests - these should not work (copy/paste to test)
+
+123x
+12x12
+123$
+
+123.
+.123
+123.123a
+123a.123
+123.123a123
+123a123.123
+
+123.123$$
+
+*]
