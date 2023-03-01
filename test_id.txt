@@ -1,5 +1,6 @@
 [* keywords *]
 function int bool real if fi else return put get while endwhile true false
+FUNCTION iNt bOOl ReAl if FI ElSE reTUrn PUT GET WHILE endwhile TRue faLSE
 
 [* identifiers *]
 q r s t u v w x y z
