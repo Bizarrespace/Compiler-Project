@@ -85,6 +85,7 @@ int main() {
 	// check if input file exists
 	if (!ifs.is_open()) {
 		std::cout << "ERROR: Couldn't open file '" << input_file_name << "'\n";
+		system("pause");
 		return -1;
 	}
 
@@ -97,7 +98,8 @@ int main() {
 
 	// check if output file was successfully opened/created
 	if (!ofs.is_open()) {
-		std::cout << "ERROR: Couldn't edit file '" << output_file_name << "'\n";
+		std::cout << "ERROR: Couldn't create/edit file '" << output_file_name << "'\n";
+		system("pause");
 		return -1;
 	}
 	std::cout << "\n";
@@ -118,6 +120,7 @@ int main() {
 		// if token is invalid, print ERROR message
 		if (token.first == "ERROR") {
 			std::cout << "ERROR: " << token.second << "\n";
+			system("pause");
 			return -1;
 		}
 
@@ -196,7 +199,7 @@ Record lexer(std::ifstream& ifs) {
 		if (buf == '=') {
 			return { "operator", "!=" };
 		}
-		return { "ERROR", "Unrecognized symbol" };
+		return { "ERROR", "! is an unrecognized symbol." };
 	}
 
 	// the only time [ can be used is for comments. use check_comment()
@@ -214,7 +217,8 @@ Record lexer(std::ifstream& ifs) {
 
 	// char is not an int, id, real, op, sep, or keyword -> invalid
 	else {
-		return { "ERROR", "Unrecognized symbol" };
+
+		return { "ERROR", buf_string + " is an unrecognized symbol." };
 	}
 }
 
@@ -337,7 +341,7 @@ Record DFSM_int_real(std::ifstream& ifs) {
 		return { "real", lexeme };
 	}
 	else {  // invalid state
-		return { "ERROR", lexeme + " is an invalid integer/real value" };
+		return { "ERROR", lexeme + " is an invalid integer/real value." };
 	}
 }
 
@@ -390,7 +394,7 @@ Record check_operator_less_than(std::ifstream& ifs) {
 Record check_comment(std::ifstream& ifs) {
 	char buf = ifs.get();
 	if (!ifs.good()) {  // file ends before comment is closed with **]
-		return { "ERROR", "Unclosed comment" };
+		return { "ERROR", "Unclosed comment." };
 	}
 	else if (buf == '*') {
 		buf = ifs.get();
@@ -399,7 +403,7 @@ Record check_comment(std::ifstream& ifs) {
 				buf = ifs.get();
 				if (!ifs.good()) {
 					// file ended before comment was closed with "*]"
-					return { "ERROR", "Unclosed comment"};
+					return { "ERROR", "Unclosed comment."};
 				}
 				else if (buf == ']') {  // file reaches "*]" -> comment ends
 					return { "comment", "" };
@@ -409,10 +413,10 @@ Record check_comment(std::ifstream& ifs) {
 			buf = ifs.get();  // read the comment's next character
 		}
 		// file ended before comment was closed with "*]"
-		return { "ERROR", "Unclosed comment" };
+		return { "ERROR", "Unclosed comment." };
 	}
 	else {  // comment does not start with "[*" (and [ is not a valid token)
-		return { "ERROR", "Unrecognized symbol" };
+		return { "ERROR", "[ is an unrecognized symbol" };
 	}
 }
 

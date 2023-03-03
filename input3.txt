@@ -1,0 +1,45 @@
+[* this file is intended to check if all tokens (id, real, int, etc.) are being
+   properly read by the lexer() function. it is not written to make any sense
+   as a program *]
+
+function abc (n int)
+{
+	if (n != 3)	return 0
+	fi
+}
+
+function xyz123 (b bool)
+{
+	if (b == true)	return false
+	else	return true
+	fi
+}
+
+function underscores____ (r real)
+{
+	r = r + 1;
+	r = r - 2;
+	r = r * 3;
+	r = r / 4;
+	put(r)
+}
+
+#
+	int input1, bool input2, real input3;	[* declarations *]
+#
+
+get(input1, input2, input3);
+
+while (input2 == true)
+{
+	if (input1 < 10)  underscores____(input3);
+	fi
+
+	if (input3 < 20.0)	abc(input1);
+	else	input2 = xyz(input2);
+	fi
+}
+
+put(input1);
+put(input2);
+put(input3);
