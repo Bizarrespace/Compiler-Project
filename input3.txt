@@ -4,14 +4,14 @@
 
 function abc (n int)
 {
-	if (n != 3)	return 0
+	if (n != 3)	return 0;
 	fi
 }
 
 function xyz123 (b bool)
 {
-	if (b == true)	return false
-	else	return true
+	if (b == true)	return false;
+	else	return true;
 	fi
 }
 
@@ -21,24 +21,27 @@ function underscores____ (r real)
 	r = r - 2;
 	r = r * 3;
 	r = r / 4;
-	put(r)
+	put(r);
 }
 
 #
-	int input1, bool input2, real input3;	[* declarations *]
+	int input1, input2, input3;	[* declarations 1*]
+	bool input4, input5, input6;			[* declarations 2*]
+	real input7, input8, input9;[* declarations 3*]
 #
 
 get(input1, input2, input3);
 
 while (input2 == true)
 {
-	if (input1 < 10)  underscores____(input3);
+	if (input1 < 10)  input1 = input2;
 	fi
 
-	if (input3 < 20.0)	abc(input1);
-	else	input2 = xyz(input2);
+	if (input3 < 20.0)	input2 = input3;
+	else	input3 = input1;
 	fi
 }
+endwhile
 
 put(input1);
 put(input2);
