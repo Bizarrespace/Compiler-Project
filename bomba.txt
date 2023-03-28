@@ -1,0 +1,37 @@
+﻿function asdf(abc1, abc2, abc3 int, def1,
+              def2 bool, ghi1 real)
+	int boogie, woogie;
+	bool soogie;
+	real cookie;
+{
+	if (abc1 > def1) {
+		put(def1);
+	}
+	else {
+		return;
+	}
+	fi
+
+	put(ghi1);
+	get(jkl);
+	stu = vwx;
+
+	while (mno == pqr) {
+		put(yz);
+	}
+	endwhile
+}
+
+function gg(a, b, c int, d, e, f bool, g, h, i real) {
+	put(a);
+}
+
+#
+
+int abc, def, ghi;
+bool jkl, mno, pqr;
+real stu, vwx, yz;
+
+#
+
+put(asdf(def));
