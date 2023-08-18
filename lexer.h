@@ -22,12 +22,12 @@ typedef std::pair <token_type, lexeme_value> Token;
 
 
 /* -------------------------------- CLASSES -------------------------------- */
-class Lexer {
+class Lexer {  // used for an input file's Lexical Analysis
 	private:
 		// Contains a list of all tokens (operators, separators, keywords, etc.)
 		Symbol_table SYM;
 		std::ifstream* ifs;  // reads input file
-		int line_number = 1;  // identifies where an error occurs in text a file
+		int line_number = 1;  // records the line that the lexer is currently on
 
 		// DFSM transition table (N) for identifiers/keywords
 		DFSM_state DFSM_id_table[5][4] =
@@ -48,7 +48,7 @@ class Lexer {
 			{3, 3, 3},
 		};
 
-		// lexer helper functions (descriptions in Lexer.cpp)
+		// lexer helper functions (implementations in Lexer.cpp)
 		Token DFSM_identifier();
 		Token DFSM_int_real();
 		Token check_operator_equals();
@@ -64,7 +64,7 @@ class Lexer {
 		Token get_token();  // extract (next) token from input file
 		int get_line_number();  // get position of lexer
 		int Analyze();  // returns -1 if LA error, returns 0 if file is good
-		void close_ifs();
+		void close_ifs();  // close input file stream
 };
 
 #endif

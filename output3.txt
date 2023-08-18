@@ -1,149 +1,876 @@
-Token		Lexeme
-keyword		function
-identifier	abc
-separator	(
-identifier	n
-keyword		int
-separator	)
-separator	{
-keyword		if
-separator	(
-identifier	n
-operator	!=
-integer		3
-separator	)
-keyword		return
-integer		0
-keyword		fi
-separator	}
-keyword		function
-identifier	xyz123
-separator	(
-identifier	b
-keyword		bool
-separator	)
-separator	{
-keyword		if
-separator	(
-identifier	b
-operator	==
-keyword		true
-separator	)
-keyword		return
-keyword		false
-keyword		else
-keyword		return
-keyword		true
-keyword		fi
-separator	}
-keyword		function
-identifier	underscores____
-separator	(
-identifier	r
-keyword		real
-separator	)
-separator	{
-identifier	r
-operator	=
-identifier	r
-operator	+
-integer		1
-separator	;
-identifier	r
-operator	=
-identifier	r
-operator	-
-integer		2
-separator	;
-identifier	r
-operator	=
-identifier	r
-operator	*
-integer		3
-separator	;
-identifier	r
-operator	=
-identifier	r
-operator	/
-integer		4
-separator	;
-keyword		put
-separator	(
-identifier	r
-separator	)
-separator	}
-separator	#
-keyword		int
-identifier	input1
-separator	,
-keyword		bool
-identifier	input2
-separator	,
-keyword		real
-identifier	input3
-separator	;
-separator	#
-keyword		get
-separator	(
-identifier	input1
-separator	,
-identifier	input2
-separator	,
-identifier	input3
-separator	)
-separator	;
-keyword		while
-separator	(
-identifier	input2
-operator	==
-keyword		true
-separator	)
-separator	{
-keyword		if
-separator	(
-identifier	input1
-operator	<
-integer		10
-separator	)
-identifier	underscores____
-separator	(
-identifier	input3
-separator	)
-separator	;
-keyword		fi
-keyword		if
-separator	(
-identifier	input3
-operator	<
-real		20.0
-separator	)
-identifier	abc
-separator	(
-identifier	input1
-separator	)
-separator	;
-keyword		else
-identifier	input2
-operator	=
-identifier	xyz
-separator	(
-identifier	input2
-separator	)
-separator	;
-keyword		fi
-separator	}
-keyword		put
-separator	(
-identifier	input1
-separator	)
-separator	;
-keyword		put
-separator	(
-identifier	input2
-separator	)
-separator	;
-keyword		put
-separator	(
-identifier	input3
-separator	)
-separator	;
+Token: keyword		Lexeme: function
+	<Rat23S> -> <Opt Function Definitions> # <Opt Declaration List> # <Statement List Start>
+	<Opt Function Definitions> -> <Function Definitions Start>
+	<Function Definitions Start> -> <Function> <Function Definitions Cont>
+	<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
+Token: identifier	Lexeme: test_assign
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_id1
+	<Opt Parameter List> -> <Parameter List Start>
+	<Parameter List Start> -> <Parameter> <Parameter List Cont>
+	<Parameter> -> <IDs Start> <Qualifier>
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: keyword		Lexeme: int
+	<IDs Cont> -> <Empty>
+	<Qualifier> -> int
+Token: separator	Lexeme: )
+	<Parameter List Cont> -> <Empty>
+Token: keyword		Lexeme: int
+	<Opt Declaration List> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> int
+Token: identifier	Lexeme: test_declaration_var1
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var2
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Declaration List Cont> -> <Empty>
+	<Body> -> { <Statement List Start> }
+Token: identifier	Lexeme: test_declaration_var1
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: integer		Lexeme: 1
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: test_declaration_var1
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: integer		Lexeme: 2
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: return
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Return Start>
+	<Return Start> -> return <Return Cont>
+Token: identifier	Lexeme: test_declaration_var1
+	<Return Cont> -> <Expression Start> ;
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: +
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: identifier	Lexeme: test_declaration_var1
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: ;
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: function
+	<Function Definitions Cont> -> <Function Definitions Start>
+	<Function Definitions Start> -> <Function> <Function Definitions Cont>
+	<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
+Token: identifier	Lexeme: test_return_start
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_id2
+	<Opt Parameter List> -> <Parameter List Start>
+	<Parameter List Start> -> <Parameter> <Parameter List Cont>
+	<Parameter> -> <IDs Start> <Qualifier>
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_id3
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: keyword		Lexeme: real
+	<IDs Cont> -> <Empty>
+	<Qualifier> -> real
+Token: separator	Lexeme: )
+	<Parameter List Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Opt Declaration List> -> <Empty>
+	<Body> -> { <Statement List Start> }
+Token: keyword		Lexeme: return
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Return Start>
+	<Return Start> -> return <Return Cont>
+Token: identifier	Lexeme: test_id2
+	<Return Cont> -> <Expression Start> ;
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: *
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: identifier	Lexeme: test_id3
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: ;
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: function
+	<Function Definitions Cont> -> <Function Definitions Start>
+	<Function Definitions Start> -> <Function> <Function Definitions Cont>
+	<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
+Token: identifier	Lexeme: test_if_start
+Token: separator	Lexeme: (
+Token: separator	Lexeme: )
+	<Opt Parameter List> -> <Empty>
+Token: keyword		Lexeme: bool
+	<Opt Declaration List> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> bool
+Token: identifier	Lexeme: test_declaration_var3
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: keyword		Lexeme: real
+	<Declaration List Cont> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> real
+Token: identifier	Lexeme: test_declaration_var4
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Declaration List Cont> -> <Empty>
+	<Body> -> { <Statement List Start> }
+Token: keyword		Lexeme: if
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <If Start>
+	<If Start> -> if ( <Condition> ) <Statement> <If Cont>
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var3
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: ==
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> ==
+Token: keyword		Lexeme: true
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> true
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: keyword		Lexeme: if
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <If Start>
+	<If Start> -> if ( <Condition> ) <Statement> <If Cont>
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var4
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: ==
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> ==
+Token: real		Lexeme: 4.0
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Real>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: keyword		Lexeme: put
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: integer		Lexeme: 1
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: else
+	<If Cont> -> else <Statement> fi
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: keyword		Lexeme: put
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: integer		Lexeme: 0
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: fi
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: fi
+	<If Cont> -> fi
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: function
+	<Function Definitions Cont> -> <Function Definitions Start>
+	<Function Definitions Start> -> <Function> <Function Definitions Cont>
+	<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
+Token: identifier	Lexeme: test_print
+Token: separator	Lexeme: (
+Token: separator	Lexeme: )
+	<Opt Parameter List> -> <Empty>
+Token: separator	Lexeme: {
+	<Opt Declaration List> -> <Empty>
+	<Body> -> { <Statement List Start> }
+Token: keyword		Lexeme: put
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: integer		Lexeme: 2
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: function
+	<Function Definitions Cont> -> <Function Definitions Start>
+	<Function Definitions Start> -> <Function> <Function Definitions Cont>
+	<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
+Token: identifier	Lexeme: test_scan
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_id4
+	<Opt Parameter List> -> <Parameter List Start>
+	<Parameter List Start> -> <Parameter> <Parameter List Cont>
+	<Parameter> -> <IDs Start> <Qualifier>
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: keyword		Lexeme: int
+	<IDs Cont> -> <Empty>
+	<Qualifier> -> int
+Token: separator	Lexeme: ,
+	<Parameter List Cont> -> , <Parameter List Start>
+Token: identifier	Lexeme: test_id5
+	<Parameter List Start> -> <Parameter> <Parameter List Cont>
+	<Parameter> -> <IDs Start> <Qualifier>
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: keyword		Lexeme: bool
+	<IDs Cont> -> <Empty>
+	<Qualifier> -> bool
+Token: separator	Lexeme: ,
+	<Parameter List Cont> -> , <Parameter List Start>
+Token: identifier	Lexeme: test_id6
+	<Parameter List Start> -> <Parameter> <Parameter List Cont>
+	<Parameter> -> <IDs Start> <Qualifier>
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: keyword		Lexeme: real
+	<IDs Cont> -> <Empty>
+	<Qualifier> -> real
+Token: separator	Lexeme: )
+	<Parameter List Cont> -> <Empty>
+	<Parameter List Cont> -> <Empty>
+	<Parameter List Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Opt Declaration List> -> <Empty>
+	<Body> -> { <Statement List Start> }
+Token: keyword		Lexeme: get
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Scan>
+	<Scan> -> get ( <IDs Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_id4
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_id5
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_id6
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: return
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Return Start>
+	<Return Start> -> return <Return Cont>
+Token: keyword		Lexeme: true
+	<Return Cont> -> <Expression Start> ;
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> true
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: separator	Lexeme: #
+	<Function Definitions Cont> -> <Empty>
+Token: keyword		Lexeme: int
+	<Opt Declaration List> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> int
+Token: identifier	Lexeme: test_declaration_var4
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var5
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: x
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: res1
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: keyword		Lexeme: bool
+	<Declaration List Cont> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> bool
+Token: identifier	Lexeme: test_declaration_var6
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var7
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: res2
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: keyword		Lexeme: real
+	<Declaration List Cont> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> real
+Token: identifier	Lexeme: test_declaration_var8
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var9
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: res3
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: #
+	<Declaration List Cont> -> <Empty>
+Token: identifier	Lexeme: test_declaration_var6
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: keyword		Lexeme: true
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> true
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: test_declaration_var7
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: keyword		Lexeme: false
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> false
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: test_declaration_var4
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: integer		Lexeme: 2
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: test_declaration_var5
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: integer		Lexeme: 3
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: test_declaration_var8
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: real		Lexeme: 1.0
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Real>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: if
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <If Start>
+	<If Start> -> if ( <Condition> ) <Statement> <If Cont>
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var6
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: ==
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> ==
+Token: keyword		Lexeme: true
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> true
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: identifier	Lexeme: x
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: operator		Lexeme: -
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> - <Primary Start>
+Token: separator	Lexeme: (
+	<Primary Start> -> ( <Expression Start> )
+Token: identifier	Lexeme: test_declaration_var4
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: +
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: identifier	Lexeme: test_declaration_var5
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: *
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: identifier	Lexeme: test_declaration_var4
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: -
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> - <Term Start> <Expression Cont>
+Token: identifier	Lexeme: test_declaration_var5
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: else
+	<If Cont> -> else <Statement> fi
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: identifier	Lexeme: x
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: identifier	Lexeme: test_declaration_var4
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: +
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: identifier	Lexeme: test_declaration_var5
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: /
+	<Term Cont> -> / <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: identifier	Lexeme: test_declaration_var4
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: -
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> - <Term Start> <Expression Cont>
+Token: identifier	Lexeme: test_declaration_var5
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: fi
+Token: keyword		Lexeme: put
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var8
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: get
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Scan>
+	<Scan> -> get ( <IDs Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var9
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: put
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var8
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: *
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: identifier	Lexeme: test_declaration_var9
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: while
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <While>
+	<While> -> while ( <Condition> ) <Statement> endwhile
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: test_declaration_var7
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: ==
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> ==
+Token: keyword		Lexeme: false
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> false
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: identifier	Lexeme: x
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: identifier	Lexeme: x
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: +
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: integer		Lexeme: 1
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: if
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <If Start>
+	<If Start> -> if ( <Condition> ) <Statement> <If Cont>
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: x
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: >
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> >
+Token: integer		Lexeme: 100
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: identifier	Lexeme: test_declaration_var7
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: keyword		Lexeme: true
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> true
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: else
+	<If Cont> -> else <Statement> fi
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: keyword		Lexeme: put
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: x
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: fi
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: endwhile
+Token: identifier	Lexeme: res1
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: identifier	Lexeme: test_assign
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: (
+	<Primary Cont> -> ( <IDs Start> )
+Token: identifier	Lexeme: x
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: res2
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: identifier	Lexeme: test_scan
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: (
+	<Primary Cont> -> ( <IDs Start> )
+Token: identifier	Lexeme: x
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var6
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var8
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: res3
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: identifier	Lexeme: test_return_start
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: (
+	<Primary Cont> -> ( <IDs Start> )
+Token: identifier	Lexeme: test_declaration_var8
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: test_declaration_var9
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: return
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Return Start>
+	<Return Start> -> return <Return Cont>
+Token: separator	Lexeme: ;
+	<Return Cont> -> ;
+Token: EOF		Lexeme: 
+	<Statement List Cont> -> <Empty>

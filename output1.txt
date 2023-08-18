@@ -1,52 +1,129 @@
-Token		Lexeme
-keyword		function
-identifier	fibonacci
-separator	(
-identifier	n
-keyword		int
-separator	)
-separator	{
-keyword		if
-separator	(
-identifier	n
-operator	<=
-integer		1
-separator	)
-keyword		return
-identifier	n
-separator	;
-keyword		else
-keyword		return
-identifier	fibonacci
-separator	(
-identifier	n
-operator	-
-integer		2
-separator	)
-operator	+
-identifier	fibonacci
-separator	(
-identifier	n
-operator	-
-integer		1
-separator	)
-separator	;
-keyword		fi
-separator	}
-separator	#
-keyword		Int
-identifier	fib
-separator	;
-separator	#
-keyword		get
-separator	(
-identifier	fib
-separator	)
-separator	;
-keyword		put
-separator	(
-identifier	fibonacci
-separator	(
-identifier	fib
-separator	)
-separator	)
+Token: separator	Lexeme: #
+	<Rat23S> -> <Opt Function Definitions> # <Opt Declaration List> # <Statement List Start>
+	<Opt Function Definitions> -> <Empty>
+Token: separator	Lexeme: #
+	<Opt Declaration List> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: identifier	Lexeme: abc
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 123
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: operator		Lexeme: +
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: integer		Lexeme: 456
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: if
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <If Start>
+	<If Start> -> if ( <Condition> ) <Statement> <If Cont>
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: abc
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: =>
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> =>
+Token: identifier	Lexeme: def
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: identifier	Lexeme: ghi
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: operator		Lexeme: -
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> - <Primary Start>
+Token: integer		Lexeme: 123
+	<Primary Start> -> <Integer>
+Token: operator		Lexeme: *
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: integer		Lexeme: 456
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: else
+	<If Cont> -> else <Statement> fi
+Token: identifier	Lexeme: abc
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 123
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: operator		Lexeme: /
+	<Term Cont> -> / <Factor> <Term Cont>
+Token: operator		Lexeme: -
+	<Factor> -> - <Primary Start>
+Token: integer		Lexeme: 456
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: keyword		Lexeme: fi
+Token: keyword		Lexeme: return
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Return Start>
+	<Return Start> -> return <Return Cont>
+Token: separator	Lexeme: ;
+	<Return Cont> -> ;
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: EOF		Lexeme: 
+	<Statement List Cont> -> <Empty>

@@ -1,20 +1,20 @@
-[* this is a comment for this sample code which
-   converts Fahrenheit into Celcius*]
-
-function convert1x (fahr int)
-{
-	return 5 * (fahr -32) / 9;
-}
+#
+bool abc, def;
+real ghi, jkl;
 
 #
-	Int low, high, step;	[* declarations *]
-#
+put(((12) * (23) / (34)) + ((45) / (56) * (67)) - ((78) * (89) / (90)));
 
-get(low, high, step);
-while (low <= high)
-{
-	put(low);
-	put(convert1x(low));
-	low = low + step;
-}
-endwhile
+get(abc, def);
+get(ghi, jkl);
+
+while ( abc == true ) {
+	if (ghi => jkl) {
+		put(ghi);
+		ghi = ghi + 1;
+	} else {
+		abc = false;
+	} fi
+} endwhile
+
+return;

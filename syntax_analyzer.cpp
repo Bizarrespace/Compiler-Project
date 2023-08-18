@@ -1,8 +1,7 @@
-#pragma once
-
 /* ------------------------------- LIBRARIES ------------------------------- */
 #include <fstream>  // input file
 #include <cstring>  // tolower
+#include <string>  // substring
 
 #include "lexer.h"
 #include "syntax_analyzer.h"
@@ -13,7 +12,7 @@
 | file stream.                                                               |
 *****************************************************************************/
 Syntax_Analyzer::Syntax_Analyzer(std::ifstream* input_file_stream,
-	                             std::ofstream* output_file_stream) {
+								 std::ofstream* output_file_stream) {
 	lexer = new Lexer(input_file_stream);
 	ofs = output_file_stream;
 }
@@ -22,108 +21,108 @@ Syntax_Analyzer::Syntax_Analyzer(std::ifstream* input_file_stream,
 | Rat23S(), the "main" method of the Syntax Analyzer, represents the starting |
 | production <Rat23S>. It essentially reads the entire input file and checks  |
 | whether it passes the Syntax Analysis phase or not. When the program        |
-| finishes (either passing or failing), it closes all file streams.           |
+| finishes (either passing or failing), it closes all file streams. Each      |
+| production rule has its own function.                                       |
 ******************************************************************************/
 void Syntax_Analyzer::Rat23S() {
 	// add <Rat23S> to list of productions
 	Productions.push_back("\t<Rat23S> -> <Opt Function Definitions> #"
-		                  " <Opt Declaration List> # <Statement List Start>");
-	
+						  " <Opt Declaration List> # <Statement List Start>");
+
 	// <Rat23S> -> <Opt Function Definitions> # <Opt Declaration List> #
-	// <Statement List> $
+	//             <Statement List> $
 	Opt_Function_Definitions();
-	check_symbol("#", 1);
+
+	try { check_symbol("#"); }
+	catch (int err) {
+		print_error("Missing '#' or 'function' between optional function"
+					" definitions and an optional declaration list");
+	}
+
 	Opt_Declaration_List();
-	check_symbol("#", 1);
-	Statement_List_Start(1);
-	check_symbol("EOF", 1);
+
+	try { check_symbol("#"); }
+	catch (int err) {
+		print_error("Missing '#' between an optional declaration list and the"
+					" list of program statements (main body)");
+	}
+
+	try { Statement_List_Start(); }
+	catch (int err) {
+		print_error("Missing statement(s) for program's main body");
+	}
+
+	try { check_symbol("EOF"); }
+	catch (int err) {
+		print_error("File should reach end after main body's statements");
+	}
 
 	// close file streams
 	lexer->close_ifs();
 	ofs->close();
 }
 
-/******************************************************************************
-| This function imitates the <Opt Function Definitions> production rule.      |
-| It calls the functions of the other productions used in it                  |
-| (ie. <Function Definitions> since                                           |
-| <Opt Function Definitions> -> <Function Definitions>). All other production |
-| functions (one for each production rule) follow a similar process.          |
-******************************************************************************/
+/*****************************************************************************
+| A production rule's function calls the function(s) of the other production |
+| rule(s) used within it. In this case, since <Opt Function Definitions> ->  |
+| <Function Definitions Start>, the function Opt_Function_Definitions() will |
+| call the function Function_Definitions_Start().                            |
+*****************************************************************************/
 void Syntax_Analyzer::Opt_Function_Definitions() {
-	// initial_list saves the current list of Productions up to this point
-	// (where Opt_Function_Definitions is called). It is saved so that when
-	// the SA backtracks (to try all possible rules), the list of Productions
-	// won't include the unused rules. This "algorithm" is present for all
-	// productions that have multiple cases (options/alternatives)
+	// when a production has multiple rules (ie. E -> A | B | C), an
+	// initial_list is created to save the list of productions used up to
+	// this point. When one case doesn't work (ie. E -> A), the
+	// initial_list will restore the list of Productions to its starting
+	// point (for backtracking and testing the other cases).
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Opt Function Definitions> -> <Function Definitions>
-	Productions.push_back("\t<Opt Function Definitions> ->"
-		                  " <Function Definitions>");
-
-	// if the Case 1 production rule works (ie. returns 0), then you
-	// can exit this function (return).
-	if (Function_Definitions_Start(0) == 0) {
+	// Case 1: <Opt Function Definitions> -> <Function Definitions Start>
+	try {  // add Case 1 to list of productions and try it
+		Productions.push_back("\t<Opt Function Definitions> ->"
+							  " <Function Definitions Start>");
+		Function_Definitions_Start();
 		return;
 	}
-
-	// if the case doesn't work, you have to revert the Productions list
-	// to what it was originally when the function first started (backtrack).
-	// then, you have to try all the other cases (and backtrack when necessary).
-	// if none of the function's cases work, you have to print an error message
-	// (unless the function is already part of another case testing process.
-	// This "algorithm" is present for all productions that have multiple cases
-	else {
+	catch (int err) {  // if Case 1 didn't work -> revert to initial_list
 		copy_list(initial_list, Productions);
 	}
-
-
+	
 	// Case 2: <Opt Function Definitions> -> <Empty>
 	Productions.push_back("\t<Opt Function Definitions> -> <Empty>");
-	// note: Opt Function Definitions always works because it has the <Empty>
-	// production rule (ie. can return nothing), so it doesn't need to return
-	// an error code (which is why it's a void function). all other production
-	// functions that can return <Empty> are also void.
 }
 
-// <Function Definitions Start>
-int Syntax_Analyzer::Function_Definitions_Start(int exit_on_error) {
+
+void Syntax_Analyzer::Function_Definitions_Start() {
 	Productions.push_back("\t<Function Definitions Start> -> <Function>"
-		                  " <Function Definitions Cont>");
+						  " <Function Definitions Cont>");
 
-	// if <Function> doesn't work, and 'exit_on_error' is disabled ( == 0)
-	// then <Function> will return the error code 1. since it doesn't work,
-	// <Function Definitions Start> won't work either, so it also has to
-	// return the error code 1. many other production functions follow
-	// this test case (backtracking) process.
-
-	// note: if exit_on_error is enabled ( == 1) AND the function that is
-	// being called runs into an error, that function will be responsible
-	// for ending the Syntax Analyzer.
-	if (Function(exit_on_error) != 0) {
-		return 1;
-	}
+	// <Function Definitions Start> will try to use <Function>. If Function()
+	// doesn't work, it will throw an error, and this error will be caught.
+	// If <Function> cannot be used, <Function Definitions Start> will not
+	// work either. Therefore, it will also throw an error to the
+	// function that calls it. (This try-catch "algorithm" is present
+	// for a lot of productions involved in backtracking).
+	try { Function(); }
+	catch (int err) { throw -1; }
 
 	Function_Definitions_Cont();
-	// the <Function Definitions Start> production rule was successful
-	return 0;
+	// some production rules have functions
 }
 
-// <Function Definitions Cont>
+
 void Syntax_Analyzer::Function_Definitions_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
 	// Case 1: <Function Definitions Cont> -> <Function Definitions Start>
-	Productions.push_back("\t<Function Definitions Cont> ->"
-		                  " <Function Definitions Start>");
-
-	if (Function_Definitions_Start(0) == 0) {
+	try {
+		Productions.push_back("\t<Function Definitions Cont> ->"
+							  " <Function Definitions Start>");
+		Function_Definitions_Start();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -131,45 +130,62 @@ void Syntax_Analyzer::Function_Definitions_Cont() {
 	Productions.push_back("\t<Function Definitions Cont> -> <Empty>");
 }
 
-// <Function>
-int Syntax_Analyzer::Function(int exit_on_error) {
-	Productions.push_back("\t<Function> -> function <Identifier> ("
-		                  " <Opt Parameter List> ) <Opt Declaration List>"
-		                  " <Body>");
 
-	// if check_symbol() didn't work, and exit_on_error is disabled,
-	// return error code 1
-	if (check_symbol("function", exit_on_error) != 0) {
-		return 1;
+void Syntax_Analyzer::Function() {
+	// if 'function' is not present, then <Function> will not be used in the
+	// list of productions (throw exception -1)
+	try {
+		Productions.push_back("\t<Function> -> function <Identifier> ("
+							  " <Opt Parameter List> ) <Opt Declaration List>"
+							  " <Body>");
+		check_symbol("function");
+	}
+	catch (int err) { throw -1; }
+
+	// however, if 'function' IS present, then <Function> will be used.
+	// Therefore, the rest of the production MUST work (or else <Function>
+	// will have improper syntax, and the Syntax Analysis will fail):
+	// in this case, <Identifier>, '(', <Opt Parameter List>, ')',
+	// <Opt Declaration List>, and <Body> must come after 'function'
+	try { check_symbol("<identifier>"); }
+	catch (int err) {
+		// if something is missing/out of place, an exception will be caught
+		// and an error message will be printed
+		print_error("Missing identifier: function needs a name");
 	}
 
-	// if it DID work, then the test case MUST follow through until completion
-	// (ie. you can't have the keyword 'function' without (<Opt Parameter List>)
-	// following it). since the test case has to follow through, exit_on_error
-	// is enabled for all subsequent production rules/symbol checks. many other
-	// production functions follow this "process."
-	check_symbol("identifier", 1);  // enable exit_on_error by passing '1'
-	check_symbol("(", 1);
+	try { check_symbol("("); }
+	catch (int err) {
+		print_error("Missing '(' for function's parameters");
+	}
+
 	Opt_Parameter_List();
-	check_symbol(")", 1);
+
+	try { check_symbol(")"); }
+	catch (int err) {
+		print_error("Missing identifier(s) or ')' for function's parameters");
+	}
+
 	Opt_Declaration_List();
 	Body();
-	return 0;
+	// note: some functions do not throw exceptions because they will either
+	// work all the time (such as with production rules that use <Empty>), OR
+	// the function call will handle the error. For example, Body() accounts
+	// for all of its own exceptions errors
 }
 
-// <Opt Parameter List>
+
 void Syntax_Analyzer::Opt_Parameter_List() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Opt Parameter List> -> <Parameter List Start>
-	Productions.push_back("\t<Opt Parameter List> ->"
-		                  " <Parameter List Start>");
-
-	if (Parameter_List_Start(0) == 0) {
+	try {  // Case 1: <Opt Parameter List> -> <Parameter List Start>
+		Productions.push_back("\t<Opt Parameter List> ->"
+							  " <Parameter List Start>");
+		Parameter_List_Start();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -177,35 +193,32 @@ void Syntax_Analyzer::Opt_Parameter_List() {
 	Productions.push_back("\t<Opt Parameter List> -> <Empty>");
 }
 
-// <Parameter List Start>
-int Syntax_Analyzer::Parameter_List_Start(int exit_on_error) {
-	Productions.push_back("\t<Parameter List Start> -> <Parameter>"
-		                  " <Parameter List Cont>");
 
-	if (Parameter(exit_on_error) != 0) {
-		return 1;
-	}
+void Syntax_Analyzer::Parameter_List_Start() {
+	Productions.push_back("\t<Parameter List Start> -> <Parameter>"
+						  " <Parameter List Cont>");
+
+	try { Parameter(); }
+	catch (int err) { throw -1; }
 
 	Parameter_List_Cont();
-	return 0;
 }
 
-// <Parameter List Cont>
+
 void Syntax_Analyzer::Parameter_List_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Parameter List Cont> -> , <Parameter List Start>
-	Productions.push_back("\t<Parameter List Cont> -> ,"
-		                  " <Parameter List Start>");
-
-	if (check_symbol(",", 0) == 0) {
-		// if ',' matched, SA is expecting <Parameter List Start>
-		// so exit_on_error has to be enabled
-		Parameter_List_Start(1);
-		return;
+	try {  // Case 1: <Parameter List Cont> -> , <Parameter List Start>
+		Productions.push_back("\t<Parameter List Cont> -> ,"
+							  " <Parameter List Start>");
+		check_symbol(",");
+		try { Parameter_List_Start(); }
+		catch (int err) {
+			print_error("Missing parameter(s) after ',' in parameter list");
+		}
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -213,86 +226,91 @@ void Syntax_Analyzer::Parameter_List_Cont() {
 	Productions.push_back("\t<Parameter List Cont> -> <Empty>");
 }
 
-// <Parameter>
-int Syntax_Analyzer::Parameter(int exit_on_error) {
+
+void Syntax_Analyzer::Parameter() {
 	Productions.push_back("\t<Parameter> -> <IDs Start> <Qualifier>");
 
-	if (IDs_Start(exit_on_error) != 0) {
-		return 1;
-	}
+	try { IDs_Start(); }
+	catch (int err) { throw -1; }
 
-	Qualifier(1);
-	return 0;
+	try { Qualifier(); }
+	catch (int err) {
+		print_error("Parameter(s) missing qualifier: 'int', 'bool', or 'real'");
+	}
 }
 
-// <Qualifier>
-int Syntax_Analyzer::Qualifier(int exit_on_error) {
+
+void Syntax_Analyzer::Qualifier() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Qualifier> -> int
-	Productions.push_back("\t<Qualifier> -> int");
-
-	if (check_symbol("int", 0) == 0) {
-		return 0;
+	try {  // Case 1: <Qualifier> -> int
+		Productions.push_back("\t<Qualifier> -> int");
+		check_symbol("int");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
-	// Case 2: <Qualifier> -> bool
-	Productions.push_back("\t<Qualifier> -> bool");
-
-	if (check_symbol("bool", 0) == 0) {
-		return 0;
+	try {  // Case 2: <Qualifier> -> bool
+		Productions.push_back("\t<Qualifier> -> bool");
+		check_symbol("bool");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
-	// Case 3: <Qualifier> -> real
-	Productions.push_back("\t<Qualifier> -> real");
-
-	if (check_symbol("real", 0) == 0) {
-		return 0;
+	try {  // Case 3: <Qualifier> -> real
+		Productions.push_back("\t<Qualifier> -> real");
+		check_symbol("real");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
 	// No matches
-	if (exit_on_error == 1) {
-		Productions.push_back("\t<Qualifier> -> int | bool | real");
-		print_error("expected qualifier");
-	}
-	return 1;
+	Productions.push_back("\t<Qualifier> -> int | bool | real");
+	throw -1;
 }
 
-// <Body>
+
 void Syntax_Analyzer::Body() {
-	Productions.push_back("\t<Body> -> { <Statement List> }");
+	Productions.push_back("\t<Body> -> { <Statement List Start> }");
 
-	// <Body> is always expected to work (ie. only called when a test case
-	// matches and exit_on_error is enabled), so it doesn't need to return
-	// any exit codes. some other production functions do this too.
-	check_symbol("{", 1);
-	Statement_List_Start(1);
-	check_symbol("}", 1);
+	try { check_symbol("{"); }
+	catch (int err) {
+		print_error("Missing '{' for beginning of function's body");
+	}
+
+	try { Statement_List_Start(); }
+	catch (int err) {
+		print_error("Function body does not have any statements");
+	}
+
+	try { check_symbol("}"); }
+	catch (int err) {
+		print_error("Missing '}' for ending of function's body");
+	}
+
+	// note: no exceptions are thrown because Body() is always expected to work.
+	// some functions follow this behavior (such as If_Cont and Return_Cont)
 }
 
-// <Opt Declaration List>
+
 void Syntax_Analyzer::Opt_Declaration_List() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Opt Declaration List> -> <Declaration List Start>
-	Productions.push_back("\t<Opt Declaration List> ->"
-		                  " <Declaration List Start>");
-
-	if (Declaration_List_Start(0) == 0) {
+	try {  // Case 1: <Opt Declaration List> -> <Declaration List Start>
+		Productions.push_back("\t<Opt Declaration List> ->"
+							  " <Declaration List Start>");
+		Declaration_List_Start();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -300,33 +318,34 @@ void Syntax_Analyzer::Opt_Declaration_List() {
 	Productions.push_back("\t<Opt Declaration List> -> <Empty>");
 }
 
-// <Declaration List Start>
-int Syntax_Analyzer::Declaration_List_Start(int exit_on_error) {
-	Productions.push_back("\t<Declaration List Start> -> <Declaration> ;"
-		                  " <Declaration List Cont>");
 
-	if (Declaration(exit_on_error) != 0) {
-		return 1;
+void Syntax_Analyzer::Declaration_List_Start() {
+	Productions.push_back("\t<Declaration List Start> -> <Declaration> ;"
+						  " <Declaration List Cont>");
+
+	try { Declaration(); }
+	catch (int err) { throw -1; }
+
+	try { check_symbol(";"); }
+	catch (int err) {
+		print_error("Missing ';' at end of declaration");
 	}
 
-	check_symbol(";", 1);
 	Declaration_List_Cont();
-	return 0;
 }
 
-// <Declaration List Cont>
+
 void Syntax_Analyzer::Declaration_List_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Declaration List Cont> -> <Declaration List Start>
-	Productions.push_back("\t<Declaration List Cont> ->"
-		                  " <Declaration List Start>");
-	
-	if (Declaration_List_Start(0) == 0) {
+	try {  // Case 1: <Declaration List Cont> -> <Declaration List Start>
+		Productions.push_back("\t<Declaration List Cont> ->"
+							  " <Declaration List Start>");
+		Declaration_List_Start();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -334,42 +353,46 @@ void Syntax_Analyzer::Declaration_List_Cont() {
 	Productions.push_back("\t<Declaration List Cont> -> <Empty>");
 }
 
-// <Declaration>
-int Syntax_Analyzer::Declaration(int exit_on_error) {
-	Productions.push_back("\t<Declaration> -> <Qualifier> <IDs Start>");
-	if (Qualifier(exit_on_error) != 0) {
-		return 1;
-	}
 
-	IDs_Start(1);
-	return 0;
+void Syntax_Analyzer::Declaration() {
+	Productions.push_back("\t<Declaration> -> <Qualifier> <IDs Start>");
+
+	try { Qualifier(); }
+	catch (int err) { throw -1; }
+
+	try { IDs_Start(); }
+	catch (int err) {
+		print_error("Missing identifier(s) in declaration (after qualifier)");
+	}
 }
 
-// <IDs Start>
-int Syntax_Analyzer::IDs_Start(int exit_on_error) {
+
+void Syntax_Analyzer::IDs_Start() {
 	Productions.push_back("\t<IDs Start> -> <Identifer> <IDs Cont>");
 
-	if (check_symbol("identifier", exit_on_error) != 0) {
-		return 1;
+	try { check_symbol("<identifier>"); }
+	catch (int err) {
+		throw -1;
 	}
 
 	IDs_Cont();
-	return 0;
 }
 
-// <IDs Cont>
+
 void Syntax_Analyzer::IDs_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <IDs Cont> -> , <IDs Start>
-	Productions.push_back("\t<IDs Cont> -> , <IDs Start>");
-
-	if (check_symbol(",", 0) == 0) {
-		IDs_Start(1);
+	try {  // Case 1: <IDs Cont> -> , <IDs Start>
+		Productions.push_back("\t<IDs Cont> -> , <IDs Start>");
+		check_symbol(",");
+		try { IDs_Start(); }
+		catch (int err) {
+			print_error("Missing identifier(s) after ','");
+		}
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -377,32 +400,29 @@ void Syntax_Analyzer::IDs_Cont() {
 	Productions.push_back("\t<IDs Cont> -> <Empty>");
 }
 
-// <Statement List Start>
-int Syntax_Analyzer::Statement_List_Start(int exit_on_error) {
-	Productions.push_back("\t<Statement List Start> -> <Statement>"
-		                  " <Statement List Cont>");
 
-	if (Statement(exit_on_error) != 0) {
-		return 1;
-	}
+void Syntax_Analyzer::Statement_List_Start() {
+	Productions.push_back("\t<Statement List Start> -> <Statement>"
+						  " <Statement List Cont>");
+
+	try { Statement(); }
+	catch (int err) { throw -1; }
 
 	Statement_List_Cont();
-	return 0;
 }
 
-// <Statement List Cont>
+
 void Syntax_Analyzer::Statement_List_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Statement List Cont> -> <Statement List Start>
-	Productions.push_back("\t<Statement List Cont> ->"
-		                  " <Statement List Start>");
-
-	if (Statement_List_Start(0) == 0) {
+	try {  // Case 1: <Statement List Cont> -> <Statement List Start>
+		Productions.push_back("\t<Statement List Cont> ->"
+							  " <Statement List Start>");
+		Statement_List_Start();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -410,391 +430,449 @@ void Syntax_Analyzer::Statement_List_Cont() {
 	Productions.push_back("\t<Statement List Cont> -> <Empty>");
 }
 
-// <Statement>
-int Syntax_Analyzer::Statement(int exit_on_error) {
+
+void Syntax_Analyzer::Statement() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Statement> -> <Compound>
-	Productions.push_back("\t<Statement> -> <Compound>");
-
-	if (Compound(0) == 0) {
-		return 0;
+	try {  // Case 1: <Statement> -> <Compound>
+		Productions.push_back("\t<Statement> -> <Compound>");
+		Compound();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 2: <Statement> -> <Assign>
-	Productions.push_back("\t<Statement> -> <Assign>");
 
-	if (Assign(0) == 0) {
-		return 0;
+	try {  // Case 2: <Statement> -> <Assign>
+		Productions.push_back("\t<Statement> -> <Assign>");
+		Assign();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 3: <Statement> -> <If Start>
-	Productions.push_back("\t<Statement> -> <If Start>");
 
-	if (If_Start(0) == 0) {
-		return 0;
+	try {  // Case 3: <Statement> -> <If Start>
+		Productions.push_back("\t<Statement> -> <If Start>");
+		If_Start();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 4: <Statement> -> <Return Start>
-	Productions.push_back("\t<Statement> -> <Return Start>");
 
-	if (Return_Start(0) == 0) {
-		return 0;
+	try {  // Case 4: <Statement> -> <Return Start>
+		Productions.push_back("\t<Statement> -> <Return Start>");
+		Return_Start();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 5: <Statement> -> <Print>
-	Productions.push_back("\t<Statement> -> <Print>");
 
-	if (Print(0) == 0) {
-		return 0;
+	try {  // Case 5: <Statement> -> <Print>
+		Productions.push_back("\t<Statement> -> <Print>");
+		Print();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 6: <Statement> -> <Scan>
-	Productions.push_back("\t<Statement> -> <Scan>");
 
-	if (Scan(0) == 0) {
-		return 0;
+	try {  // Case 6: <Statement> -> <Scan>
+		Productions.push_back("\t<Statement> -> <Scan>");
+		Scan();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 7: <Statement> -> <While>
-	Productions.push_back("\t<Statement> -> <While>");
 
-	if (While(0) == 0) {
-		return 0;
+	try {  // Case 7: <Statement> -> <While>
+		Productions.push_back("\t<Statement> -> <While>");
+		While();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
 	// No matches
-	if (exit_on_error == 1) {
-		Productions.push_back("\t<Statement> -> <Compound> | <Assign> |"
-			                  " <If Start> | <Return Start> | <Print> | <Scan>"
-			                  " | <While>");
-
-		print_error("expected statement");
-	}
-	return 1;
+	Productions.push_back("\t<Statement> -> <Compound> | <Assign> |"
+						  " <If Start> | <Return Start> | <Print> | <Scan>"
+						  " | <While>");
+	throw -1;
 }
 
-// <Compound>
-int Syntax_Analyzer::Compound(int exit_on_error) {
+
+void Syntax_Analyzer::Compound() {
 	Productions.push_back("\t<Compound> -> { <Statement List Start> }");
 
-	if (check_symbol("{", exit_on_error) != 0) {
-		return 1;
+	try { check_symbol("{"); }
+	catch (int err) { throw -1; }
+
+	try { Statement_List_Start(); }
+	catch (int err) {
+		print_error("Compound statement is missing inside statement(s)");
 	}
 
-	Statement_List_Start(1);
-	check_symbol("}", 1);
-	return 0;
+	try { check_symbol("}"); }
+	catch (int err) {
+		print_error("Missing '}' at end of Compound statement");
+	}
 }
 
-// <Assign>
-int Syntax_Analyzer::Assign(int exit_on_error) {
-	Productions.push_back("\t<Assign> -> <Identifier> = <Expression Start>"
-		                  " ;");
 
-	if (check_symbol("identifier", exit_on_error) != 0) {
-		return 1;
+void Syntax_Analyzer::Assign() {
+	Productions.push_back("\t<Assign> -> <Identifier> = <Expression Start> ;");
+
+	try { check_symbol("<identifier>"); }
+	catch (int err) { throw -1; }
+
+	try { check_symbol("="); }
+	catch (int err) {
+		print_error("Missing '=' for assign statement");
 	}
 
-	check_symbol("=", 1);
-	Expression_Start(1);
-	check_symbol(";", 1);
-	return 0;
+	try { Expression_Start(); }
+	catch (int err) {
+		print_error("Missing expression for assign statement");
+	}
+
+	try { check_symbol(";"); }
+	catch (int err) {
+		print_error("Missing ';' at end of assign statement");
+	}
 }
 
-// <If Start>
-int Syntax_Analyzer::If_Start(int exit_on_error) {
+
+void Syntax_Analyzer::If_Start() {
 	Productions.push_back("\t<If Start> -> if ( <Condition> ) <Statement>"
-		                  " <If Cont>");
+						  " <If Cont>");
 
-	if (check_symbol("if", exit_on_error) != 0) {
-		return 1;
+	try { check_symbol("if"); }
+	catch (int err) {
+		throw -1;
 	}
 
-	check_symbol("(", 1);
-	Condition(1);
-	check_symbol(")", 1);
-	Statement(1);
-	If_Cont(1);
-	return 0;
+	try { check_symbol("("); }
+	catch (int err) {
+		print_error("Missing '(' before condition of if statement");
+	}
+
+	Condition();
+
+	try { check_symbol(")"); }
+	catch (int err) {
+		print_error("Missing ')' after condition of if statement");
+	}
+
+	try { Statement(); }
+	catch (int err) {
+		print_error("Missing statement for satisfied if condition");
+	}
+
+	If_Cont();
 }
 
-// <If Cont>
-int Syntax_Analyzer::If_Cont(int exit_on_error) {
+
+void Syntax_Analyzer::If_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <If Cont> -> else <Statement> fi
-	Productions.push_back("\t<If Cont> -> else <Statement> fi");
-	
-	if (check_symbol("else", 0) == 0) {
-		Statement(1);
-		check_symbol("fi", 1);
-		return 0;
+	try {  // Case 1: <If Cont> -> else <Statement> fi
+		Productions.push_back("\t<If Cont> -> else <Statement> fi");
+		check_symbol("else");
+		try { Statement(); }
+		catch (int err) {
+			print_error("Missing statement for"
+						" satisfied else condition of if statement");
+		}
+		try { check_symbol("fi"); }
+		catch (int err) {
+			print_error("Missing 'fi' at end of if statement");
+		}
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
-	// Case 2: <If Cont> -> fi
-	Productions.push_back("\t<If Cont> -> fi");
-	
-	if (check_symbol("fi", 0) == 0) {
-		return 0;
+	try {  // Case 2: <If Cont> -> fi
+		Productions.push_back("\t<If Cont> -> fi");
+		check_symbol("fi");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
 	// No matches
-	if (exit_on_error == 1) {
-		Productions.push_back("\t<If Cont> -> fi | else <Statement> fi");
-		print_error("expected 'fi' or 'else'");
-	}
-	return 1;
+	Productions.push_back("\t<If Cont> -> fi | else <Statement> fi");
+	print_error("if statement is missing 'fi' or 'else' statement 'fi' at end");
 }
 
-// <Return Start>
-int Syntax_Analyzer::Return_Start(int exit_on_error) {
+
+void Syntax_Analyzer::Return_Start() {
 	Productions.push_back("\t<Return Start> -> return <Return Cont>");
 
-	if (check_symbol("return", exit_on_error) != 0) {
-		return 1;
-	}
+	try { check_symbol("return"); }
+	catch (int err) { throw -1; }
 
-	Return_Cont(1);
-	return 0;
+	Return_Cont();
 }
 
-// <Return Cont>
-int Syntax_Analyzer::Return_Cont(int exit_on_error) {
+
+void Syntax_Analyzer::Return_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Return Cont> -> <Expression Start> ;
-	Productions.push_back("\t<Return Cont> -> <Expression Start> ;");
-	if (Expression_Start(0) == 0) {
-		check_symbol(";", 1);
-		return 0;
+	try {  // Case 1: <Return Cont> -> <Expression Start> ;
+		Productions.push_back("\t<Return Cont> -> <Expression Start> ;");
+		Expression_Start();
+		try { check_symbol(";"); }
+		catch (int err) {
+			print_error("Missing ';' at end of return statement's expression");
+		}
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
-	// Case 2: <Return Cont> -> ;
-	Productions.push_back("\t<Return Cont> -> ;");
-	if (check_symbol(";", 0) == 0) {
-		return 0;
+	try {  // Case 2: <Return Cont> -> ;
+		Productions.push_back("\t<Return Cont> -> ;");
+		check_symbol(";");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-
+	
 	// No matches
-	if (exit_on_error == 1) {
-		Productions.push_back("\t<Return Cont> -> <Expression Start> ; | ;");
-		print_error("expected expression or ';'");
-	}
-	return 1;
+	Productions.push_back("\t<Return Cont> -> <Expression Start> ; | ;");
+	print_error("Missing ';' or expression and ';' at end of return statement");
 }
 
-// <Print>
-int Syntax_Analyzer::Print(int exit_on_error) {
+
+void Syntax_Analyzer::Print() {
 	Productions.push_back("\t<Print> -> put ( <Expression Start> ) ;");
 
-	if (check_symbol("put", exit_on_error) != 0) {
-		return 1;
+	try { check_symbol("put"); }
+	catch (int err) { throw -1; }
+
+	try { check_symbol("("); }
+	catch (int err) {
+		print_error("Missing '(' after 'put' of print statement");
 	}
 
-	check_symbol("(", 1);
-	Expression_Start(1);
-	check_symbol(")", 1);
-	check_symbol(";", 1);
-	return 0;
+	try { Expression_Start(); }
+	catch (int err) {
+		print_error("Missing expression inside print statement");
+	}
+
+	try { check_symbol(")"); }
+	catch (int err) {
+		print_error("Missing ')' after expression of print statement");
+	}
+
+	try { check_symbol(";"); }
+	catch (int err) {
+		print_error("Missing ';' at end of print statement");
+	}
 }
 
-// <Scan>
-int Syntax_Analyzer::Scan(int exit_on_error) {
+
+void Syntax_Analyzer::Scan() {
 	Productions.push_back("\t<Scan> -> get ( <IDs Start> ) ;");
 
-	if (check_symbol("get", exit_on_error) != 0) {
-		return 1;
+	try { check_symbol("get"); }
+	catch (int err) { throw -1; }
+
+	try { check_symbol("("); }
+	catch (int err) {
+		print_error("Missing '(' after 'get' of scan statement");
 	}
 
-	check_symbol("(", 1);
-	IDs_Start(1);
-	check_symbol(")", 1);
-	check_symbol(";", 1);
-	return 0;
+	try { IDs_Start(); }
+	catch (int err) {
+		print_error("Missing identifier(s) inside scan statement");
+	}
+
+	try { check_symbol(")"); }
+	catch (int err) {
+		print_error("Missing ')' after identifier(s) of scan statement");
+	}
+
+	try { check_symbol(";"); }
+	catch (int err) {
+		print_error("Missing ';' at end of scan statement");
+	}
 }
 
-// <While>
-int Syntax_Analyzer::While(int exit_on_error) {
+
+void Syntax_Analyzer::While() {
 	Productions.push_back("\t<While> -> while ( <Condition> )"
-		                  " <Statement> endwhile");
+						  " <Statement> endwhile");
 
-	if (check_symbol("while", exit_on_error) != 0) {
-		return 1;
+	try { check_symbol("while"); }
+	catch (int err) { throw -1; }
+
+	try { check_symbol("("); }
+	catch (int err) {
+		print_error("Missing '(' before condition of while statement");
 	}
 
-	check_symbol("(", 1);
-	Condition(1);
-	check_symbol(")", 1);
-	Statement(1);
-	check_symbol("endwhile", 1);
-	return 0;
+	Condition();
+
+	try { check_symbol(")"); }
+	catch (int err) {
+		print_error("Missing ')' after condition of while statement");
+	}
+
+	try { Statement(); }
+	catch (int err) {
+		print_error("Missing statement(s) inside of while loop");
+	}
+
+	try { check_symbol("endwhile"); }
+	catch (int err) {
+		print_error("Missing 'endwhile' at end of while statement");
+	}
 }
 
-// <Condition>
-int Syntax_Analyzer::Condition(int exit_on_error) {
+
+void Syntax_Analyzer::Condition() {
 	Productions.push_back("\t<Condition> -> <Expression Start> <Relop>"
-		                  " <Expression Start>");
+						  " <Expression Start>");
 
-	if (Expression_Start(exit_on_error) != 0) {
-		return 1;
+	try { Expression_Start(); }
+	catch (int err) {
+		print_error("Missing LHS expression for condition");
 	}
 
-	Relop(1);
-	Expression_Start(1);
-	return 0;
+	Relop();
+
+	try { Expression_Start(); }
+	catch (int err) {
+		print_error("Missing RHS expression for condition");
+	}
 }
 
-// <Relop>
-int Syntax_Analyzer::Relop(int exit_on_error) {
+
+void Syntax_Analyzer::Relop() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: ==
-	Productions.push_back("\t<Relop> -> ==");
-
-	if (check_symbol("==", 0) == 0) {
-		return 0;
+	try {  // Case 1: ==
+		Productions.push_back("\t<Relop> -> ==");
+		check_symbol("==");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 2: !=
-	Productions.push_back("\t<Relop> -> !=");
 
-	if (check_symbol("!=", 0) == 0) {
-		return 0;
+	try {  // Case 2: !=
+		Productions.push_back("\t<Relop> -> !=");
+		check_symbol("!=");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 3: >
-	Productions.push_back("\t<Relop> -> >");
 
-	if (check_symbol(">", 0) == 0) {
-		return 0;
+	try {  // Case 3: >
+		Productions.push_back("\t<Relop> -> >");
+		check_symbol(">");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 4: <
-	Productions.push_back("\t<Relop> -> <");
 
-	if (check_symbol("<", 0) == 0) {
-		return 0;
+	try {  // Case 4: <
+		Productions.push_back("\t<Relop> -> <");
+		check_symbol("<");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 5: <=
-	Productions.push_back("\t<Relop> -> <=");
 
-	if (check_symbol("<=", 0) == 0) {
-		return 0;
+	try {  // Case 5: <=
+		Productions.push_back("\t<Relop> -> <=");
+		check_symbol("<=");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 6: =>
-	Productions.push_back("\t<Relop> -> =>");
 
-	if (check_symbol("=>", 0) == 0) {
-		return 0;
+	try {  // Case 6: =>
+		Productions.push_back("\t<Relop> -> =>");
+		check_symbol("=>");
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
+
 	// No matches
-	if (exit_on_error == 1) {
-		Productions.push_back("\t<Relop> -> == | != | > | < | <= | =>");
-		print_error("expected relational operator");
-	}
-	return 1;
+	Productions.push_back("\t<Relop> -> == | != | > | < | <= | =>");
+	print_error("Missing relational operator for condition");
 }
 
-// <Expression Start>
-int Syntax_Analyzer::Expression_Start(int exit_on_error) {
-	Productions.push_back("\t<Expression Start> -> <Term Start> <Expression"
-		                  " Cont>");
 
-	if (Term_Start(exit_on_error) != 0) {
-		return 1;
-	}
+void Syntax_Analyzer::Expression_Start() {
+	Productions.push_back("\t<Expression Start> -> <Term Start> <Expression"
+						  " Cont>");
+
+	try { Term_Start(); }
+	catch (int err) { throw -1; }
 
 	Expression_Cont();
-	return 0;
 }
 
-// <Expression Cont>
+
 void Syntax_Analyzer::Expression_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Expression Cont> -> + <Term Start> <Expression Cont>
-	Productions.push_back("\t<Expression Cont> -> + <Term Start> <Expression"
-		                  " Cont>");
+	try {  // Case 1: <Expression Cont> -> + <Term Start> <Expression Cont>
+		Productions.push_back("\t<Expression Cont> -> + <Term Start>"
+							  " <Expression Cont>");
 
-	if (check_symbol("+", 0) == 0) {
-		Term_Start(1);
+		check_symbol("+");
+
+		try { Term_Start(); }
+		catch (int err) {
+			print_error("Missing Term after '+'");
+		}
+
 		Expression_Cont();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
-	// Case 2: <Expression Cont> -> - <Term Start> <Expression Cont>
-	Productions.push_back("\t<Expression Cont> -> - <Term Start> <Expression"
-		                  " Cont>");
+	try {  // Case 2: <Expression Cont> -> - <Term Start> <Expression Cont>
+		Productions.push_back("\t<Expression Cont> -> - <Term Start>"
+							  " <Expression Cont>");
 
-	if (check_symbol("-", 0) == 0) {
-		Term_Start(1);
+		check_symbol("-");
+
+		try { Term_Start(); }
+		catch (int err) {
+			print_error("Missing Term after '-'");
+		}
+
 		Expression_Cont();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -802,180 +880,202 @@ void Syntax_Analyzer::Expression_Cont() {
 	Productions.push_back("\t<Expression Cont> -> <Empty>");
 }
 
-// <Term Start>
-int Syntax_Analyzer::Term_Start(int exit_on_error) {
+
+void Syntax_Analyzer::Term_Start() {
 	Productions.push_back("\t<Term Start> -> <Factor> <Term Cont>");
 
-	if (Factor(exit_on_error) != 0) {
-		return 1;
-	}
+	try { Factor(); }
+	catch (int err) { throw -1; }
 
 	Term_Cont();
-	return 0;
 }
 
-// <Term Cont>
+
 void Syntax_Analyzer::Term_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Term Cont> -> * <Factor> <Term Cont>
-	Productions.push_back("\t<Term Cont> -> * <Factor> <Term Cont>");
+	try {  // Case 1: <Term Cont> -> * <Factor> <Term Cont>
+		Productions.push_back("\t<Term Cont> -> * <Factor> <Term Cont>");
 
-	if (check_symbol("*", 0) == 0) {
-		Factor(1);
+		check_symbol("*");
+
+		try { Factor(); }
+		catch (int err) {
+			print_error("Missing Factor after '*'");
+		}
+
 		Term_Cont();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
-	// Case 2: <Term Cont> -> / <Factor> <Term Cont>
-	Productions.push_back("\t<Term Cont> -> / <Factor> <Term Cont>");
+	try {  // Case 2: <Term Cont> -> / <Factor> <Term Cont>
+		Productions.push_back("\t<Term Cont> -> / <Factor> <Term Cont>");
 
-	if (check_symbol("/", 0) == 0) {
-		Factor(1);
+		check_symbol("/");
+
+		try { Factor(); }
+		catch (int err) {
+			print_error("Missing Factor after '/'");
+		}
+
 		Term_Cont();
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
+
 	// Case 3: <Term Cont> -> <Empty>
 	Productions.push_back("\t<Term Cont> -> <Empty>");
 }
 
-// <Factor>
-int Syntax_Analyzer::Factor(int exit_on_error) {
+
+void Syntax_Analyzer::Factor() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Factor> -> - <Primary>
-	Productions.push_back("\t<Factor> -> - <Primary>");
+	try {  // Case 1: <Factor> -> - <Primary>
+		Productions.push_back("\t<Factor> -> - <Primary Start>");
 
-	if (check_symbol("-", 0) == 0) {
-		Primary_Start(1);
-		return 0;
+		check_symbol("-");
+
+		try { Primary_Start(); }
+		catch (int err) {
+			print_error("Missing Primary expression after '-'");
+		}
+
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
-	// Case 2: <Factor> -> <Primary>
-	Productions.push_back("\t<Factor> -> <Primary>");
 
-	if (Primary_Start(0) == 0) {
-		return 0;
+	try {  // Case 2: <Factor> -> <Primary>
+		Productions.push_back("\t<Factor> -> <Primary Start>");
+
+		Primary_Start();
+		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
-	
+
 	// No matches
-	if (exit_on_error == 1) {
-		Productions.push_back("\t<Factor> -> - <Primary> | <Primary>");
-		print_error("expected primary (<identifier>, <integer>, <real>,"
-			        " (expression), true, or false)");
-	}
-	return 1;
+	Productions.push_back("\t<Factor> -> - <Primary Start> | <Primary Start>");
+	throw -1;
 }
 
-// <Primary Start>
-int Syntax_Analyzer::Primary_Start(int exit_on_error) {
+
+void Syntax_Analyzer::Primary_Start() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Primary Start> -> <Identifier> <Primary Cont>
-	Productions.push_back("\t<Primary Start> -> <Identifier> <Primary"
-		                  " Cont>");
-
-	if (check_symbol("identifier", 0) == 0) {
-		Primary_Cont();
-		return 0;
-	}
-	else {
-		copy_list(initial_list, Productions);
-	}
-	
-	// Case 2: <Primary Start> -> <Integer>
-	Productions.push_back("\t<Primary Start> -> <Integer>");
-
-	if (check_symbol("integer", 0) == 0) {
-		return 0;
-	}
-	else {
-		copy_list(initial_list, Productions);
-	}
-	
-	// Case 3: <Primary Start> -> ( <Expression Start> )
-	Productions.push_back("\t<Primary Start> -> ( <Expression Start> )");
-
-	if (check_symbol("(", 0) == 0) {
-		Expression_Start(1);
-		check_symbol(")", 1);
-		return 0;
-	}
-	else {
-		copy_list(initial_list, Productions);
-	}
-	
-	// Case 4: <Primary Start> -> <Real>
-	Productions.push_back("\t<Primary Start> -> <Real>");
-
-	if (check_symbol("<real>", 0) == 0) {
-		return 0;
-	}
-	else {
-		copy_list(initial_list, Productions);
-	}
-	
-	// Case 5: <Primary Start> -> true
-	Productions.push_back("\t<Primary Start> -> true");
-
-	if (check_symbol("true", 0) == 0) {
-		return 0;
-	}
-	else {
-		copy_list(initial_list, Productions);
-	}
-
-	// Case 6: <Primary Start> -> false
-	Productions.push_back("\t<Primary Start> -> false");
-
-	if (check_symbol("false", 0) == 0) {
-		return 0;
-	}
-	else {
-		copy_list(initial_list, Productions);
-	}
-
-	// No matches
-	if (exit_on_error == 1) {
+	try {  // Case 1: <Primary Start> -> <Identifier> <Primary Cont>
 		Productions.push_back("\t<Primary Start> -> <Identifier> <Primary"
-			                  " Cont> | <Integer> | ( <Expression Start> ) |"
-			                  " <Real> | true | false");
-		print_error("expected primary (<identifier>, <integer>, <real>,"
-			        " (expression), true, or false)");
+							  " Cont>");
+
+		check_symbol("<identifier>");
+		Primary_Cont();
+		return;
 	}
-	return 1;
+	catch (int err) {
+		copy_list(initial_list, Productions);
+	}
+
+	try {  // Case 2: <Primary Start> -> <Integer>
+		Productions.push_back("\t<Primary Start> -> <Integer>");
+
+		check_symbol("<integer>");
+		return;
+	}
+	catch (int err) {
+		copy_list(initial_list, Productions);
+	}
+
+	try {  // Case 3: <Primary Start> -> ( <Expression Start> )
+		Productions.push_back("\t<Primary Start> -> ( <Expression Start> )");
+		check_symbol("(");
+
+		try { Expression_Start(); }
+		catch (int err) {
+			print_error("Missing expression between parantheses");
+		}
+
+		try { check_symbol(")"); }
+		catch (int err) {
+			print_error("Missing ')' to close expression");
+		}
+
+		return;
+	}
+	catch (int err) {
+		copy_list(initial_list, Productions);
+	}
+
+	try {  // Case 4: <Primary Start> -> <Real>
+		Productions.push_back("\t<Primary Start> -> <Real>");
+
+		check_symbol("<real>");
+		return;
+	}
+	catch (int err) {
+		copy_list(initial_list, Productions);
+	}
+
+	try {  // Case 5: <Primary Start> -> true
+		Productions.push_back("\t<Primary Start> -> true");
+
+		check_symbol("true");
+		return;
+	}
+	catch (int err) {
+		copy_list(initial_list, Productions);
+	}
+
+	try {  // Case 6: <Primary Start> -> false
+		Productions.push_back("\t<Primary Start> -> false");
+
+		check_symbol("false");
+		return;
+	}
+	catch (int err) {
+		copy_list(initial_list, Productions);
+	}
+
+	// No matches
+	Productions.push_back("\t<Primary Start> -> <Identifier> <Primary"
+						  " Cont> | <Integer> | ( <Expression Start> ) |"
+						  " <Real> | true | false");
+	throw -1;
 }
 
-// <Primary Cont>
+
 void Syntax_Analyzer::Primary_Cont() {
 	Rule_list initial_list;
 	copy_list(Productions, initial_list);
 
-	// Case 1: <Primary Cont> -> ( <IDs Start> )
-	Productions.push_back("\t<Primary Cont> -> ( <IDs Start> )");
+	try {  // Case 1: <Primary Cont> -> ( <IDs Start> )
+		Productions.push_back("\t<Primary Cont> -> ( <IDs Start> )");
 
-	if (check_symbol("(", 0) == 0) {
-		IDs_Start(1);
-		check_symbol(")", 1);
+		check_symbol("(");
+
+		try { IDs_Start(); }
+		catch (int err) {
+			print_error("Missing identifier(s) for Primary function() call");
+		}
+
+		try { check_symbol(")"); }
+		catch (int err) {
+			print_error("Missing ')' for Primary function() call");
+		}
+
 		return;
 	}
-	else {
+	catch (int err) {
 		copy_list(initial_list, Productions);
 	}
 
@@ -985,14 +1085,16 @@ void Syntax_Analyzer::Primary_Cont() {
 
 /*******************************************************************************
 | check_symbol checks if the current token matches a terminal symbol (id, int, |
-| real, keyword, sep, op). if it doesn't, and exit_on_error is enabled, then   |
-| it will print an error message using print_error(). if exit_on_error is      |
-| disabled, then it will just return the error code 1.                         |
-| otherwise, if the current token matches the terminal symbol, then it will    |
-| return the success code 0. in the event that the matched symbol appears in   |
-| a new line, line_number (passed by reference) is updated.                    |
+| real, keyword, sep, op). if it doesn't, it will throw an exception of -1.    |
+| otherwise, if the current token matches the terminal symbol, then the token  |
+| and the list of productions it uses will be printed.                         |
+|                                                                              |
+| in the event that the matched symbol appears on a new line, err_line_number  |
+| is updated to = that new line's number. this update marks where the next     |
+| token is expected to appear (and if it doesn't appear there, an error        |
+| message will print the # of the line where it's expected to appear).         |
 *******************************************************************************/
-int Syntax_Analyzer::check_symbol(std::string symbol, int exit_on_error) {
+void Syntax_Analyzer::check_symbol(std::string symbol) {
 	// if a token hasn't been read from the lexer yet, call get_token().
 	// otherwise, STAY on the same (current) token - don't skip tokens!!!
 	if (current_token.first == "") {
@@ -1005,87 +1107,64 @@ int Syntax_Analyzer::check_symbol(std::string symbol, int exit_on_error) {
 		}
 	}
 
-	// <Identifier> or <Integer>
-	if (symbol == "identifier" || symbol == "integer") {
-		if (current_token.first != symbol) {
-			if (exit_on_error == 1) {  // doesn't match and exit_on_error on
-				print_error("expected <" + symbol + ">");
-			}
-			else {
-				return 1;
-			}
+	// <Identifier>, <Integer>, or <Real>
+	if (symbol == "<identifier>" || symbol == "<integer>"
+		|| symbol == "<real>") {
+
+		// if current token doesn't match expected symbol, throw exception
+		if (current_token.first != symbol.substr(1, symbol.find(">") - 1)) {
+			throw -1;
 		}
-		else {  // terminal symbol matches -> print everything
+		else {  // otherwise, print the token and its productions
 			print_current_token();
 			print_productions();
-			current_token = { "", "" };  // reset everything for next token
-			Productions.clear();
-			// in case symbol appeared on new line, update err_line_number
-			err_line_number = get_line_number();
-			return 0;
-		}  // all other cases follow this same matching process
-	}
-	// <Real>
-	else if (symbol == "<real>") {
-		if (current_token.first != "real") {
-			if (exit_on_error == 1) {
-				print_error("expected <real>");
-			}
-			else {
-				return 1;
-			}
-		}
-		else {
-			print_current_token();
-			print_productions();
+
+			// reset everything for next token
 			current_token = { "", "" };
 			Productions.clear();
-			err_line_number = get_line_number();
-			return 0;
+
+			// update where next symbol is expected to appear (line #)
+			err_line_number = lexer->get_line_number();
+			return;
 		}
 	}
 	// EOF
 	else if (symbol == "EOF") {
-		if (current_token.first != symbol) {
-			if (exit_on_error == 1) {
-				print_error("expected " + symbol);
-			}
-			else {
-				return 1;
-			}
+		if (current_token.first != "EOF") {
+			throw -1;
 		}
 		else {
 			print_current_token();
 			print_productions();
 			current_token = { "", "" };
 			Productions.clear();
-			err_line_number = get_line_number();
-			return 0;
+			err_line_number = lexer->get_line_number();
+			return;
 		}
 	}
-	// keywords, operators, separators (note: Rat23S is NOT case sensitive)
-	// (ie. both 'function' and 'FuNCtiOn' are equivalent keywords)
+	// keywords, operators, separators
+	// (note: Rat23S is NOT case sensitive. i.e. both 'function' and 'FuNCtiOn'
+	// are equivalent keywords. so, current symbol is converted to all lowercase
+	// before checking)
 	std::string lower_lexeme = convert_to_lowercase(current_token.second);
 	if (lower_lexeme != symbol) {
-		if (exit_on_error == 1) {
-			print_error("expected '" + symbol + "'");
-			return 1;
-		}
-		else {
-			return 1;
-		}
+		throw -1;
 	}
-	else {  // matching symbol
+	else {
 		print_current_token();
 		print_productions();
 		current_token = { "", "" };
 		Productions.clear();
-		err_line_number = get_line_number();
-		return 0;
+		err_line_number = lexer->get_line_number();
+		return;
 	}
 }
 
-// Makes the list 'copy' have the same contents as 'original'
+/*****************************************************************************
+| This function makes the list 'copy' have the same contents as 'original'.  |
+| It is used for backtracking (i.e. reverting the list of productions to its |
+| former steps).                                                             |
+*****************************************************************************/
 void Syntax_Analyzer::copy_list(Rule_list original, Rule_list& copy) {
 	copy.clear();
 	for (int i = 0; i < original.size(); i++) {
@@ -1093,19 +1172,17 @@ void Syntax_Analyzer::copy_list(Rule_list original, Rule_list& copy) {
 	}
 }
 
-// returns the lowercase version of string s (used for checking terminal
-// symbols, since Rat23S is not case sensitive
+/*******************************************************************************
+| This function returns the lowercase version of 's'. It is called during      |
+| symbol checks since Rat23S is not a case sensitive language (which means     |
+| that COMPARISONS between symbols should be in the same case, i.e. lowercase) |
+*******************************************************************************/
 std::string Syntax_Analyzer::convert_to_lowercase(std::string s) {
 	std::string lower = "";
 	for (int i = 0; i < s.size(); i++) {
 		lower += tolower(s[i]);
 	}
 	return lower;
-}
-
-// returns the line that the lexer is currently on
-int Syntax_Analyzer::get_line_number() {
-	return lexer->get_line_number();
 }
 
 // prints the current token onto the output file
@@ -1118,22 +1195,28 @@ void Syntax_Analyzer::print_current_token() {
 		*ofs << "Token: " << current_token.first << "\tLexeme: "
 			<< current_token.second << "\n";
 	}
-	else {
+	else {  // number of tabs adjusted based on token type length
 		*ofs << "Token: " << current_token.first << "\t\tLexeme: "
 			<< current_token.second << "\n";
 	}
 }
 
-// prints the list of productions used for a token onto the output file
+// prints the list of productions used by the current token onto the output file
 void Syntax_Analyzer::print_productions() {
 	for (int i = 0; i < Productions.size(); i++) {
 		*ofs << Productions.at(i) << "\n";
 	}
 }
 
-// called when a token causes an error. the given error message and line number
-// are printed onto the output file
-void Syntax_Analyzer::print_error(Message err_msg) {
+/*******************************************************************************
+| This function prints the given error message (err_msg) onto the output file. |
+| The format of an error message is the line number it occurred, its           |
+| description, the list of productions leading to the error, and the           |
+| unexpected token. Additionally, reaching an error means that the SA phase    |
+| has failed. Thus, the input and output file streams are closed and the       |
+| program exits with an error code of -1.                                      |
+*******************************************************************************/
+void Syntax_Analyzer::print_error(std::string err_msg) {
 	*ofs << err_line_number << ": ERROR - " << err_msg << "\n";
 	print_productions();
 	*ofs << "\t";

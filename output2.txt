@@ -1,66 +1,343 @@
-Token		Lexeme
-keyword		function
-identifier	convert1x
-separator	(
-identifier	fahr
-keyword		int
-separator	)
-separator	{
-keyword		return
-integer		5
-operator	*
-separator	(
-identifier	fahr
-operator	-
-integer		32
-separator	)
-operator	/
-integer		9
-separator	;
-separator	}
-separator	#
-keyword		Int
-identifier	low
-separator	,
-identifier	high
-separator	,
-identifier	step
-separator	;
-separator	#
-keyword		get
-separator	(
-identifier	low
-separator	,
-identifier	high
-separator	,
-identifier	step
-separator	)
-separator	;
-keyword		while
-separator	(
-identifier	low
-operator	<=
-identifier	high
-separator	)
-separator	{
-keyword		put
-separator	(
-identifier	low
-separator	)
-separator	;
-keyword		put
-separator	(
-identifier	convert1x
-separator	(
-identifier	low
-separator	)
-separator	)
-separator	;
-identifier	low
-operator	=
-identifier	low
-operator	+
-identifier	step
-separator	;
-separator	}
-keyword		endwhile
+Token: separator	Lexeme: #
+	<Rat23S> -> <Opt Function Definitions> # <Opt Declaration List> # <Statement List Start>
+	<Opt Function Definitions> -> <Empty>
+Token: keyword		Lexeme: bool
+	<Opt Declaration List> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> bool
+Token: identifier	Lexeme: abc
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: def
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: keyword		Lexeme: real
+	<Declaration List Cont> -> <Declaration List Start>
+	<Declaration List Start> -> <Declaration> ; <Declaration List Cont>
+	<Declaration> -> <Qualifier> <IDs Start>
+	<Qualifier> -> real
+Token: identifier	Lexeme: ghi
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: jkl
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ;
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: #
+	<Declaration List Cont> -> <Empty>
+Token: keyword		Lexeme: put
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 12
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: *
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 23
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: /
+	<Term Cont> -> / <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 34
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: +
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: separator	Lexeme: (
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 45
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: /
+	<Term Cont> -> / <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 56
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: *
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 67
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: -
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> - <Term Start> <Expression Cont>
+Token: separator	Lexeme: (
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: separator	Lexeme: (
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 78
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: *
+	<Term Cont> -> * <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 89
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: operator		Lexeme: /
+	<Term Cont> -> / <Factor> <Term Cont>
+Token: separator	Lexeme: (
+	<Factor> -> <Primary Start>
+	<Primary Start> -> ( <Expression Start> )
+Token: integer		Lexeme: 90
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: get
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Scan>
+	<Scan> -> get ( <IDs Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: abc
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: def
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: get
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Scan>
+	<Scan> -> get ( <IDs Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: ghi
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: ,
+	<IDs Cont> -> , <IDs Start>
+Token: identifier	Lexeme: jkl
+	<IDs Start> -> <Identifer> <IDs Cont>
+Token: separator	Lexeme: )
+	<IDs Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: keyword		Lexeme: while
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <While>
+	<While> -> while ( <Condition> ) <Statement> endwhile
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: abc
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: ==
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> ==
+Token: keyword		Lexeme: true
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> true
+Token: separator	Lexeme: )
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: keyword		Lexeme: if
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <If Start>
+	<If Start> -> if ( <Condition> ) <Statement> <If Cont>
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: ghi
+	<Condition> -> <Expression Start> <Relop> <Expression Start>
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: =>
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+	<Relop> -> =>
+Token: identifier	Lexeme: jkl
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: keyword		Lexeme: put
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Print>
+	<Print> -> put ( <Expression Start> ) ;
+Token: separator	Lexeme: (
+Token: identifier	Lexeme: ghi
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: separator	Lexeme: )
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: ;
+Token: identifier	Lexeme: ghi
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: identifier	Lexeme: ghi
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Identifier> <Primary Cont>
+Token: operator		Lexeme: +
+	<Primary Cont> -> <Empty>
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> + <Term Start> <Expression Cont>
+Token: integer		Lexeme: 1
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> <Integer>
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: else
+	<If Cont> -> else <Statement> fi
+Token: separator	Lexeme: {
+	<Statement> -> <Compound>
+	<Compound> -> { <Statement List Start> }
+Token: identifier	Lexeme: abc
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Assign>
+	<Assign> -> <Identifier> = <Expression Start> ;
+Token: operator		Lexeme: =
+Token: keyword		Lexeme: false
+	<Expression Start> -> <Term Start> <Expression Cont>
+	<Term Start> -> <Factor> <Term Cont>
+	<Factor> -> <Primary Start>
+	<Primary Start> -> false
+Token: separator	Lexeme: ;
+	<Term Cont> -> <Empty>
+	<Expression Cont> -> <Empty>
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: fi
+Token: separator	Lexeme: }
+	<Statement List Cont> -> <Empty>
+Token: keyword		Lexeme: endwhile
+Token: keyword		Lexeme: return
+	<Statement List Cont> -> <Statement List Start>
+	<Statement List Start> -> <Statement> <Statement List Cont>
+	<Statement> -> <Return Start>
+	<Return Start> -> return <Return Cont>
+Token: separator	Lexeme: ;
+	<Return Cont> -> ;
+Token: EOF		Lexeme: 
+	<Statement List Cont> -> <Empty>

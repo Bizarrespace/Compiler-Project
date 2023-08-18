@@ -1,11 +1,9 @@
-#pragma once
-
 /* ------------------------------- LIBRARIES ------------------------------- */
 #include <cstring>  // tolower()
 #include <ctype.h>  // isalpha()  isdigit()
 #include <fstream>  // input file
 #include <map>  // symbol table (SYM)
-#include <string>
+#include <string>  // substring
 #include <utility>  // token_type and lexeme_value pairs (ie. tokens)
 
 #include "lexer.h"
@@ -351,7 +349,7 @@ int Lexer::get_line_number() {
 
 /******************************************************************************
 | Checks if a file passes the Lexical Analysis phase. Returns 0 when the file |
-| is valid, returns -1 when it is not.                                        |
+| passes, returns -1 when it does not.                                        |
 ******************************************************************************/
 int Lexer::Analyze() {
 	// peek at next character

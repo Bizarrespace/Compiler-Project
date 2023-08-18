@@ -1,45 +1,84 @@
-[* this file is intended to check if all tokens (id, real, int, etc.) are being
-   properly read by the lexer() function. it is not written to make any sense
-   as a program *]
+[* Function Definitions *]
+function test_assign ( test_id1 int )
+	int test_declaration_var1, test_declaration_var2; {
 
-function abc (n int)
-{
-	if (n != 3)	return 0
+	test_declaration_var1 = 1;
+	test_declaration_var1 = 2;
+	return test_declaration_var1 + test_declaration_var1;
+}
+
+function test_return_start ( test_id2, test_id3 real ) {
+	return test_id2 * test_id3;
+}
+
+function test_if_start () bool test_declaration_var3; real test_declaration_var4; {
+	if (test_declaration_var3 == true) {
+		if (test_declaration_var4 == 4.0) {
+			put(1);
+		}
+		else {
+			put(0);
+		}
+		fi
+	}
 	fi
 }
 
-function xyz123 (b bool)
-{
-	if (b == true)	return false
-	else	return true
-	fi
+function test_print () {
+	put(2);
 }
 
-function underscores____ (r real)
-{
-	r = r + 1;
-	r = r - 2;
-	r = r * 3;
-	r = r / 4;
-	put(r)
+function test_scan (test_id4 int, test_id5 bool, test_id6 real) {
+	get(test_id4, test_id5, test_id6);
+	return true;
 }
 
 #
-	int input1, bool input2, real input3;	[* declarations *]
+
+[* Declaration List *]
+int test_declaration_var4, test_declaration_var5, x, res1;
+bool test_declaration_var6, test_declaration_var7, res2;
+real test_declaration_var8, test_declaration_var9, res3;
+
 #
 
-get(input1, input2, input3);
+[* Statement List *]
 
-while (input2 == true)
-{
-	if (input1 < 10)  underscores____(input3);
-	fi
+test_declaration_var6 = true;  [* Assign *]
+test_declaration_var7 = false;
+test_declaration_var4 = 2;
+test_declaration_var5 = 3;
+test_declaration_var8 = 1.0;
 
-	if (input3 < 20.0)	abc(input1);
-	else	input2 = xyz(input2);
+
+if (test_declaration_var6 == true) {  [* Compound/If *]
+	x = - (test_declaration_var4 + test_declaration_var5) *
+	      (test_declaration_var4 - test_declaration_var5);
+}
+else {
+	x = (test_declaration_var4 + test_declaration_var5) /
+	    (test_declaration_var4 - test_declaration_var5);
+}
+fi
+
+put(test_declaration_var8);  [* Put/Scan *]
+get(test_declaration_var9);
+put(test_declaration_var8 * test_declaration_var9);
+
+while (test_declaration_var7 == false) {  [* While *]
+	x = x + 1;
+	if ( x > 100 ) {
+		test_declaration_var7 = true;
+	}
+	else {
+		put(x);
+	}
 	fi
 }
+endwhile
 
-put(input1);
-put(input2);
-put(input3);
+res1 = test_assign(x);
+res2 = test_scan(x, test_declaration_var6, test_declaration_var8);
+res3 = test_return_start(test_declaration_var8, test_declaration_var9);
+
+return;  [* Return *]

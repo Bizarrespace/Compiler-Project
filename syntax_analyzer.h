@@ -3,85 +3,77 @@
 #define SYNTAX_ANALYZER_H_
 
 /* ------------------------------- LIBRARIES ------------------------------- */
-#include <fstream>  // input file
-#include <string>
-#include <utility>  // pair
-#include <vector>  // message list
+#include <fstream>  // input and output files
+#include <string>  // substring
+#include <vector>  // Rule_list
 
-#include "lexer.h"
+#include "lexer.h"  // Lexer (get tokens)
 
 /* ------------------- DEFINE STATEMENTS FOR STRUCTURES ------------------- */
-typedef int flag;  // switch
-typedef std::string Message;
-typedef std::vector<Message> Rule_list;  // list of productions used for a token
+typedef std::string Production;  // ex. "E -> T"
+typedef std::vector<Production> Rule_list;  // productions used by a token
 
 
 /* -------------------------------- CLASSES -------------------------------- */
-class Syntax_Analyzer {
+class Syntax_Analyzer {  // used for an input file's Syntax Analysis
 	private:
 		Lexer* lexer;  // get tokens from input file
-		Token current_token = { "", "" };  // keep track of most recent token
-		Rule_list Productions;  // record the productions used for each token
-		std::ofstream* ofs;  // print tokens + rules to output file
-		int err_line_number = 1;  // keep track of where next symbol is supposed
-		// to appear (and if it doesn't, print the error line number in ofs)
+		Token current_token = { "", "" };  // used for backtracking/symbol check
+		Rule_list Productions;  // productions used by current_token
+		std::ofstream* ofs;  // write to output file
+		int err_line_number = 1;  // keep track of where error occurs
 
-		// syntax rules
-
+		// productions
 		void Opt_Function_Definitions();
-		int Function_Definitions_Start(int exit_on_error);
+		void Function_Definitions_Start();
 		void Function_Definitions_Cont();
-		int Function(int exit_on_error);
+		void Function();
 		void Opt_Parameter_List();
-		int Parameter_List_Start(int exit_on_error);
+		void Parameter_List_Start();
 		void Parameter_List_Cont();
-		int Parameter(int exit_on_error);
-		int Qualifier(int exit_on_error);
+		void Parameter();
+		void Qualifier();
 		void Body();
 		void Opt_Declaration_List();
-		int Declaration_List_Start(int exit_on_error);
+		void Declaration_List_Start();
 		void Declaration_List_Cont();
-		int Declaration(int exit_on_error);
-		int IDs_Start(int exit_on_error);
+		void Declaration();
+		void IDs_Start();
 		void IDs_Cont();
-		int Statement_List_Start(int exit_on_error);
+		void Statement_List_Start();
 		void Statement_List_Cont();
-		int Statement(int exit_on_error);
-		int Compound(int exit_on_error);
-		int Assign(int exit_on_error);
-		int If_Start(int exit_on_error);
-		int If_Cont(int exit_on_error);
-		int Return_Start(int exit_on_error);
-		int Return_Cont(int exit_on_error);
-		int Print(int exit_on_error);
-		int Scan(int exit_on_error);
-		int While(int exit_on_error);
-		int Condition(int exit_on_error);
-		int Relop(int exit_on_error);
-		int Expression_Start(int exit_on_error);
+		void Statement();
+		void Compound();
+		void Assign();
+		void If_Start();
+		void If_Cont();
+		void Return_Start();
+		void Return_Cont();
+		void Print();
+		void Scan();
+		void While();
+		void Condition();
+		void Relop();
+		void Expression_Start();
 		void Expression_Cont();
-		int Term_Start(int exit_on_error);
+		void Term_Start();
 		void Term_Cont();
-		int Factor(int exit_on_error);
-		int Primary_Start(int exit_on_error);
+		void Factor();
+		void Primary_Start();
 		void Primary_Cont();
 
 		// helper functions
-
-		// terminal symbols (tokens)
-		int check_symbol(std::string symbol, int exit_on_error);
-		void copy_list(Rule_list original, Rule_list& copy);  // copy rule list
+		void check_symbol(std::string symbol);  // match expected symbol
+		void copy_list(Rule_list original, Rule_list& copy);  // backtrack
 		std::string convert_to_lowercase(std::string s);
-		int get_line_number();  // get position of lexer
-		void print_current_token();
-		void print_productions();
-		void print_error(Message err_msg);
-
+		void print_current_token();  // print the current token
+		void print_productions();  // print the productions of current token
+		void print_error(std::string err_msg);  // write error message
 
 	public:
 		Syntax_Analyzer(std::ifstream* input_file_stream,
-			            std::ofstream* output_file_stream);  //  constructor
-		void Rat23S();  //  start syntax analysis
+						std::ofstream* output_file_stream);  // constructor
+		void Rat23S();  // start Syntax Analysis
 };
 
 #endif

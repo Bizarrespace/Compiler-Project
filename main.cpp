@@ -1,7 +1,7 @@
 /* ------------------------------- LIBRARIES ------------------------------- */
 #include <fstream>  // input file
 #include <iostream>  // console error messages
-#include <string>
+#include <string>  // strings
 
 #include "lexer.h"  // lexer
 #include "syntax_analyzer.h"  // syntax analyzer
@@ -25,8 +25,7 @@ int main() {
 	// get input file
 	std::cout << "Enter the name of an input text file: ";
 	std::string input_file_name;
-	// std::cin >> input_file_name;
-	input_file_name = "bomba.txt";
+	std::cin >> input_file_name;
 	std::ifstream ifs;
 	ifs.open(input_file_name);
 
@@ -44,15 +43,14 @@ int main() {
 	// get output file
 	std::cout << "Enter the name of the output file you want to create/edit: ";
 	std::string output_file_name;
-	// std::cin >> output_file_name;
-	output_file_name = "output.txt";
+	std::cin >> output_file_name;
 	std::ofstream ofs;
 	ofs.open(output_file_name);
 
 	// check if output file was successfully opened/created
 	if (!ofs.is_open()) {
 		std::cout << "ERROR: Couldn't create/edit file '" << output_file_name
-			      << "'\n";
+			<< "'\n";
 		system("pause");
 		return -1;
 	}
@@ -64,11 +62,11 @@ int main() {
 	lexical_ifs.open(input_file_name);
 	skip_BOM_encoding(lexical_ifs);  // skip BOM then do LA phase
 	Lexer lexical_analyzer(&lexical_ifs);
-	if (lexical_analyzer.Analyze() != 0) {
+	if (lexical_analyzer.Analyze() != 0) {  // LA failed, print error msg
 		std::cout << "ERROR: File failed lexical analysis on line " <<
-			         lexical_analyzer.get_line_number() << ".\n";
+			lexical_analyzer.get_line_number() << ".\n";
 		ofs << "ERROR: File failed lexical analysis on line " <<
-			   lexical_analyzer.get_line_number() << ".\n";
+			lexical_analyzer.get_line_number() << ".\n";
 		system("pause");
 		return -1;
 	}
